@@ -1,7 +1,7 @@
 import type React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 
-const iconVariants = cva("h-6 w-6", {
+const iconVariants = cva("", {
 	variants: {
 		animate: {
 			true: "animate-spin",
