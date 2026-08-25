@@ -7,6 +7,6 @@ export default function useTasks() {
 	return {
 		tasks,
 		tasksCount: tasks.length,
-		concludedTasks: tasks.map((task) => task.completed === true),
+		completedTasks: tasks.map((task) => task.completed === true),
 	};
 }

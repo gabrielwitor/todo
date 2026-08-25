@@ -13,12 +13,15 @@ import xIcon from "../assets/icons/x.svg?react";
 import TextInput from "../components/text-input";
 import type { Task } from "../models/task";
 import { cx } from "class-variance-authority";
+import useTask from "../hooks/use-task";
 
 interface TaskItemProps {
 	task: Task;
 }
 
 function TaskItem({ task }: TaskItemProps) {
+	const { updateTask, updateTaskStatus } = useTask();
+
 	const [isEditing, setisEditing] = React.useState(task.state === "creating");
 
 	function handleEditTask() {
@@ -29,7 +32,7 @@ function TaskItem({ task }: TaskItemProps) {
 		setisEditing(false);
 	}
 
-	const [taskTitle, setTaskTitle] = React.useState("");
+	const [taskTitle, setTaskTitle] = React.useState(task.title || "");
 
 	function handleChangeTaskTitle(e: React.ChangeEvent<HTMLInputElement>) {
 		setTaskTitle(e.target.value || "");
@@ -37,8 +40,13 @@ function TaskItem({ task }: TaskItemProps) {
 
 	function handleSubmitTask(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
-		console.log({ id: task.id, title: taskTitle });
+		updateTask(task.id, { title: taskTitle });
 		setisEditing(false);
+	}
+
+	function handleUpdateTaskStatus(e: React.ChangeEvent<HTMLInputElement>) {
+		const checked = e.target.checked;
+		updateTaskStatus(task.id, checked);
 	}
 
 	return (
@@ -50,6 +58,7 @@ function TaskItem({ task }: TaskItemProps) {
 						onChange={handleChangeTaskTitle}
 						required
 						autoFocus
+						value={taskTitle}
 					></TextInput>
 					<div className="flex gap-1">
 						<ButtonIcon
@@ -64,15 +73,12 @@ function TaskItem({ task }: TaskItemProps) {
 			) : (
 				<div className="flex items-center gap-3">
 					<CheckboxInput
-						value={task?.completed.toString()}
-						checked={task?.completed}
-						onChange={() => {
-							console.log("");
-						}}
+						checked={task.completed}
+						onChange={handleUpdateTaskStatus}
 					/>
 					<Text
 						className={cx("flex-1", {
-							"line-through": task?.completed,
+							"line-through": task.completed,
 						})}
 					>
 						{taskTitle}

@@ -9,8 +9,6 @@ function TasksList() {
 	const { tasks } = useTasks();
 	const { prepareTask } = useTask();
 
-	console.log(tasks);
-
 	function handleNewTask() {
 		prepareTask();
 	}
