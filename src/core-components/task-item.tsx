@@ -20,19 +20,20 @@ interface TaskItemProps {
 }
 
 function TaskItem({ task }: TaskItemProps) {
-	const { updateTask, updateTaskStatus } = useTask();
+	const { updateTask, updateTaskStatus, deleteTask } = useTask();
 
 	const [isEditing, setisEditing] = React.useState(task.state === "creating");
+	const [taskTitle, setTaskTitle] = React.useState(task.title || "");
 
 	function handleEditTask() {
 		setisEditing(true);
 	}
 
 	function handleExitEditTask() {
+		if (task.state === "creating") deleteTask(task.id);
+
 		setisEditing(false);
 	}
-
-	const [taskTitle, setTaskTitle] = React.useState(task.title || "");
 
 	function handleChangeTaskTitle(e: React.ChangeEvent<HTMLInputElement>) {
 		setTaskTitle(e.target.value || "");
@@ -47,6 +48,10 @@ function TaskItem({ task }: TaskItemProps) {
 	function handleUpdateTaskStatus(e: React.ChangeEvent<HTMLInputElement>) {
 		const checked = e.target.checked;
 		updateTaskStatus(task.id, checked);
+	}
+
+	function handleDeleteTask() {
+		deleteTask(task.id);
 	}
 
 	return (
@@ -84,7 +89,11 @@ function TaskItem({ task }: TaskItemProps) {
 						{taskTitle}
 					</Text>
 					<div className="flex gap-1">
-						<ButtonIcon variant={"terciary"} icon={TrashIcon} />
+						<ButtonIcon
+							variant={"terciary"}
+							icon={TrashIcon}
+							onClick={handleDeleteTask}
+						/>
 						<ButtonIcon
 							variant={"terciary"}
 							icon={PencilIcon}
