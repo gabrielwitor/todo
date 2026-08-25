@@ -14,13 +14,21 @@ import TextInput from "../components/text-input";
 import type { Task } from "../models/task";
 import { cx } from "class-variance-authority";
 import useTask from "../hooks/use-task";
+import Skeleton from "../components/skeleton";
 
 interface TaskItemProps {
 	task: Task;
+	loading?: boolean;
 }
 
-function TaskItem({ task }: TaskItemProps) {
-	const { updateTask, updateTaskStatus, deleteTask } = useTask();
+function TaskItem({ task, loading }: TaskItemProps) {
+	const {
+		updateTask,
+		updateTaskStatus,
+		deleteTask,
+		isUpdatingTask,
+		isDeletingTask,
+	} = useTask();
 
 	const [isEditing, setisEditing] = React.useState(task.state === "creating");
 	const [taskTitle, setTaskTitle] = React.useState(task.title || "");
@@ -39,9 +47,9 @@ function TaskItem({ task }: TaskItemProps) {
 		setTaskTitle(e.target.value || "");
 	}
 
-	function handleSubmitTask(e: React.FormEvent<HTMLFormElement>) {
+	async function handleSubmitTask(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
-		updateTask(task.id, { title: taskTitle });
+		await updateTask(task.id, { title: taskTitle });
 		setisEditing(false);
 	}
 
@@ -50,8 +58,8 @@ function TaskItem({ task }: TaskItemProps) {
 		updateTaskStatus(task.id, checked);
 	}
 
-	function handleDeleteTask() {
-		deleteTask(task.id);
+	async function handleDeleteTask() {
+		await deleteTask(task.id);
 	}
 
 	return (
@@ -72,7 +80,7 @@ function TaskItem({ task }: TaskItemProps) {
 							onClick={handleExitEditTask}
 							type="button"
 						/>
-						<ButtonIcon icon={CheckIcon} type="submit" />
+						<ButtonIcon icon={CheckIcon} type="submit" handling={isUpdatingTask} />
 					</div>
 				</form>
 			) : (
@@ -80,24 +88,32 @@ function TaskItem({ task }: TaskItemProps) {
 					<CheckboxInput
 						checked={task.completed}
 						onChange={handleUpdateTaskStatus}
+						loading={loading}
 					/>
-					<Text
-						className={cx("flex-1", {
-							"line-through": task.completed,
-						})}
-					>
-						{taskTitle}
-					</Text>
+					{loading ? (
+						<Skeleton className="h-6 flex-1" />
+					) : (
+						<Text
+							className={cx("flex-1", {
+								"line-through": task.completed,
+							})}
+						>
+							{taskTitle}
+						</Text>
+					)}
 					<div className="flex gap-1">
 						<ButtonIcon
 							variant={"terciary"}
 							icon={TrashIcon}
 							onClick={handleDeleteTask}
+							loading={loading}
+							handling={isDeletingTask}
 						/>
 						<ButtonIcon
 							variant={"terciary"}
 							icon={PencilIcon}
 							onClick={handleEditTask}
+							loading={loading}
 						/>
 					</div>
 				</div>
